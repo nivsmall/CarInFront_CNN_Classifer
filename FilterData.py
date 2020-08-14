@@ -59,7 +59,7 @@ timeAtt2keep = ['daytime', 'dawn/dusk', 'undefined']
 
 def filterData(weatherAtt2keep, sceneAtt2keep, timeAtt2keep, labelsJson):
     ''''
-    Filtering out the unwanted image with unwanted attributes (to serve as input for model)
+    Filtering out the unwanted images containing unwanted attributes (to serve as input for model)
     Inputs: which attributes to keep regarding weather, scene and time-of-day
     Return: number of remaining images after filter was applied
     '''
