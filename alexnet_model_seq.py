@@ -4,7 +4,7 @@ from tensorflow.keras import layers, models
 
 
 
-def create_alexnet(input_shape, num_classes, drop_out_rate):
+def create_alexnet(input_shape, num_classes, drop_out_rate=0):
     ''''
     initializers: he_normal (kaiming) -- mean: 0 -- std: sqrt(2/fan-in)
     '''
@@ -34,10 +34,19 @@ def create_alexnet(input_shape, num_classes, drop_out_rate):
     model.add(layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2), padding='valid'))
 
     model.add(layers.Flatten())
-    #model.add(layers.Dense(4096, activation='relu', kernel_initializer='he_normal'))
-    #model.add(layers.Dense(4096, activation='relu', kernel_initializer='he_normal'))
-    model.add(layers.Dropout(drop_out_rate))
-    model.add(layers.Dense(1000, activation='relu', kernel_initializer='he_normal'))
+
+    #   For Actual Alexnet Model (from paper) use these three layers as Dense:
+    # model.add(layers.Dense(4096, activation='relu', kernel_initializer='he_normal'))
+    # model.add(layers.Dense(4096, activation='relu', kernel_initializer='he_normal'))
+    # model.add(layers.Dense(1000, activation='relu', kernel_initializer='he_normal'))
+
+    #   If GPU doesn't have enough RAM use smaller Dense layers (e.i. 256 each):
+    #   Possibly add dropout:
+    # model.add(layers.Dropout(drop_out_rate))
+    model.add(layers.Dense(256, activation='relu', kernel_initializer='he_normal'))
+    model.add(layers.Dense(256, activation='relu', kernel_initializer='he_normal'))
+    model.add(layers.Dense(256, activation='relu', kernel_initializer='he_normal'))
+
     model.add(layers.Dense(num_classes, activation='softmax'))
     model.summary()
     return model
