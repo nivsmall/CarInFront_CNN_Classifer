@@ -3,25 +3,28 @@ import numpy as np
 import json
 import os
 import cv2
+import random
 
 
 def load_labels(lbl_dir):
+    """
+    load Json file and convert it to a python dictionary
+    :param lbl_dir: directory of Json file including file name
+    :return: dictionary containing { KEY - image name, VALUE - image data }
+    """
     data_dict = {}
     with open(lbl_dir) as json_file:
         labels_dict = json.load(json_file)
     return labels_dict
 
 
-def reshape_and_normalize_images(im_dir):
-    with os.scandir(im_dir) as scan:
-        for img in scan:
-            if not '.jpg' in img.name:
-                continue
-            mat = cv2.imread(os.path.join(im_dir, img.name))
-            mat = mat/255
-
-
 def image_example(img_str, label):
+    """
+    When tf.record file is written (as a batch) this function will determine what data to write to each example
+    :param img_str: a bytes-string encoded image
+    :param label: class of example
+    :return:
+    """
 
     def _int64_feature(value):
         """Returns an int64_list from a bool / enum / int / uint."""
@@ -42,19 +45,19 @@ def image_example(img_str, label):
         'image_raw': _bytes_feature(img_str),
     }
 
-    '''
-    for line in str(image_example(image_string, label)).split('\n')[:15]:
-      print(line)
-    print('...')
-    '''
-
     return tf.train.Example(features=tf.train.Features(feature=feature))
 
 
-def write_tfrecord(record_file, labels_dict, img_dir):
-    ''''
-    Notice: the only pre-processing done here is resizing the images
-    '''
+def write_tfrecord(record_file, labels_dict, img_dir, In_Shape):
+    """
+    :param record_file: tf.record type file to serve as input for training model
+    :param labels_dict: dictionary containing { KEY - image name, VALUE - class } pairs
+    :param img_dir: Image directory - actual images held in '0' and '1' folders
+    :param In_Shape: shape of images to serve as inputs to model
+    :return: int - number of examples written in the tf.record file
+        Notice: the only pre-processing done here is resizing the images
+                Normalizing the images will be done elsewhere; @ input_pipeline.py
+    """
     # different labels are stored are stored in different folders:
     img_dir0 = os.path.join(img_dir, '0/')
     img_dir1 = os.path.join(img_dir, '1/')
@@ -70,8 +73,8 @@ def write_tfrecord(record_file, labels_dict, img_dir):
                 continue
 
             image = cv2.imread(os.path.join(img_dir, filename))
-            # resize for model input size:
-            image = tf.cast(tf.image.resize_with_pad(image, target_height=227, target_width=227), tf.uint8)
+            # resize to model input size:
+            image = tf.cast(tf.image.resize_with_pad(image, target_height=In_Shape[0], target_width=In_Shape[1]), tf.uint8)
             image_string = tf.io.encode_jpeg(tf.cast(image, tf.uint8))
 
             tf_example = image_example(image_string, label)
@@ -80,7 +83,73 @@ def write_tfrecord(record_file, labels_dict, img_dir):
     return i
 
 
+def balance_data_via_augmentation(data_dir):
+    """
+    Assuming there are more One labels than Zeros (but no more than half):
+    Augment all Zero-labeled data
+    Augment One-labeled data to achieve equal number of images for both classes
+    Amount of data after running this function will be 2*0-class images
+    :param data_dir: directory that image data is held, Image data should already be split into folders for each class
+    :return: None
+    """
+    img_dir0 = os.path.join(data_dir, '0')
+    img_dir1 = os.path.join(data_dir, '1')
+    list0 = os.listdir(img_dir0)
+    list1 = os.listdir(img_dir1)
+    data_imbalance = len(list0)*2-len(list1)
+    to_augment = random.choices(list1, k=data_imbalance)
+    random.shuffle(to_augment)
+    random.shuffle(list0)
+    augment_listed_images(img_dir1, to_augment)
+    augment_listed_images(img_dir0, list0)
+    return
 
+
+def augment_listed_images(img_dir, img_lst):
+    """
+    Augments images and writes to same directory, types of augmentation:
+    1) flip horizontally 2) add random noise 3) add gaussian blur (randomly does one for each image)
+    :param img_dir: directory of images
+    :param img_lst: list type containing all images to augment - all images should be in img_dir
+    :return: None
+    """
+    for i in range(len(img_lst)):
+
+        image_path = os.path.join(img_dir, img_lst.pop())
+        image = cv2.imread(image_path)
+
+        if i % 3 == 0:  # add noise
+            aug_img = add_random_noise(image)
+            cv2.imwrite(image_path.split('.jpg')[0] + '_n_aug.jpg', aug_img)
+
+        elif i % 3 == 1:  # flip horizontally:
+            aug_img = np.fliplr(image)
+            cv2.imwrite(image_path.split('.jpg')[0] + '_f_aug.jpg', aug_img)
+
+        else:  # add blur
+            kernel = random.randint(5, 50)
+            if kernel % 2 == 0: kernel += 1
+            aug_img = cv2.GaussianBlur(image, ksize=(kernel, kernel), sigmaX=0)
+            cv2.imwrite(image_path.split('.jpg')[0] + '_b_aug.jpg', aug_img)
+    return
+
+
+def add_random_noise(image, show=False):
+    """
+    Adds random noise to image for augmentation
+    :param image: array - Image Matrix
+    :param show: Bool - for debugging - whether to show image after added noise
+    :return Augmented Image - array - Image Matrix
+    """
+    std = np.random.randint(10, 50, 1)
+    aug_img = np.zeros(image.shape, np.uint8)
+    aug_img = np.clip(cv2.randn(aug_img, mean=255 / 2, stddev=std), a_min=0, a_max=255)
+    aug_img = cv2.add(aug_img, image)
+    if show:
+        cv2.imshow('Augmented Image:', aug_img)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+    return aug_img
 
 
 
