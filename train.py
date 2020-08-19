@@ -8,42 +8,38 @@ from alexnet_model_seq import create_alexnet
 from data_processing import load_labels
 import input_pipeline
 
-EPOCHS = 10
+EPOCHS = 3
 INPUT_SHAPE = (227, 227, 3)
-NUM_CLASSES = 2
+NUM_CLASSES = 1
 BATCH_SIZE = 16
-lr = 0.1
+lr = 1e-2
 
 
 def train(transfer=False):
+    """
+    Training the model will be done here!
+    :param transfer: Bool- whether to start training from scratch (initialize model) or from pre-trained model
+    :return: None
+    """
 
-    checkpoint_path = "training_1/cp-{epoch:04d}.ckpt"
-    checkpoint_dir = os.path.dirname(checkpoint_path)
-    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-                                                     save_weights_only=True,
-                                                     verbose=1, period=5)
-
-    model = create_alexnet(input_shape=INPUT_SHAPE, num_classes=NUM_CLASSES, drop_out_rate=0.2)
+    model = create_alexnet(input_shape=INPUT_SHAPE, num_classes=NUM_CLASSES, drop_out_rate=0)
     if transfer:
-        model.load_weights("training_2/cp-0005.ckpt")
+        model.load_model("training_1/cp-0005.ckpt")
 
     train_ds = input_pipeline.read_tfrecord('bdd100k/tfrecords/train_test.tfrecords', show=False, shuffle=True)
-    train_ds = train_ds.shuffle(buffer_size=1024).batch(BATCH_SIZE)
+    train_ds = train_ds.shuffle(buffer_size=2048).batch(BATCH_SIZE)
 
     val_ds = input_pipeline.read_tfrecord('bdd100k/tfrecords/val_test.tfrecords', show=False, shuffle=True)
     val_ds = val_ds.shuffle(buffer_size=128).batch(BATCH_SIZE)
 
-    # Save the weights using the `checkpoint_path` format
-    model.save_weights(checkpoint_path.format(epoch=0))
-
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr, amsgrad=False),
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr, amsgrad=True),
                   loss='binary_crossentropy',
                   metrics=['accuracy'])
 
-    callbacks = [tf.keras.callbacks.ModelCheckpoint(filepath="training_3/cp-{epoch:04d}.ckpt",
+    callbacks = [tf.keras.callbacks.ModelCheckpoint(filepath="saved_models/my_model2/",
                                                     save_best_only=True,
                                                     monitor='loss',
-                                                    save_weights_only=True,
+                                                    save_weights_only=False,
                                                     verbose=1, period=1)]
     '''[tf.keras.callbacks.EarlyStopping(
          monitor="val_loss",  # Stop training when `val_loss` is no longer improving
@@ -66,4 +62,4 @@ def train(transfer=False):
     return
 
 
-train(True)
+train(False)

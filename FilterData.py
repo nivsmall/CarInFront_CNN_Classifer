@@ -3,7 +3,9 @@ import os
 import cv2
 
 ''''
-github repo: https://github.com/ucbdrive/bdd100k
+Images taken from Berkley Deep Drive Dataset.
+For more info about this dataset:
+BDD github repo: https://github.com/ucbdrive/bdd100k
                 BDD JSON FILE FORMAT:        
 - name: string
 - url: string
@@ -59,9 +61,12 @@ timeAtt2keep = ['daytime', 'dawn/dusk', 'undefined']
 
 def filterData(weatherAtt2keep, sceneAtt2keep, timeAtt2keep, labelsJson):
     ''''
-    Filtering out the unwanted images containing unwanted attributes (to serve as input for model)
-    Inputs: which attributes to keep regarding weather, scene and time-of-day
-    Return: number of remaining images after filter was applied
+    Filtering out the unwanted images containing unwanted attributes
+    Inputs: which attributes TO KEEP regarding weather, scene and time-of-day
+            Json containing BDD info, labels and attributes
+    Outputs: data dictionary containing wanted images only (after filter applied)
+
+    All wanted images should be relocated to 'used_images' folder under 'bdd100k' using the outputed dictionary
     '''
     data_dict = {}
     with open(labelsJson) as json_file:
@@ -78,7 +83,7 @@ def filterData(weatherAtt2keep, sceneAtt2keep, timeAtt2keep, labelsJson):
 def relocate_wanted_images(data, orig_im_dir, new_im_dir):
     ''''
     Relocating the wanted data (after filtering) to different directory
-    data: dictionary with, key - image name, value - image data
+    Inputs: data -- dictionary { KEY - image name, VALUE - image data }
     '''
     for img_name in data:
         os.rename(os.path.join(orig_im_dir,img_name), os.path.join(new_im_dir,img_name))
@@ -88,7 +93,7 @@ def relocate_wanted_images(data, orig_im_dir, new_im_dir):
 def preview_filtered_data(data, im_dir):
     ''''
     Sanity check, preview data to verify data properly filtered
-    data: dictionary with, key - image name, value - image data
+    INPUTS: data -- dictionary { KEY - image name, VALUE - image data }
     HIT 0 TO SEE ANOTHER IMAGE, CONSEQUENTLY
     '''
     for img_name in data:

@@ -1,20 +1,24 @@
 import os
 import cv2
 import json
+import numpy as np
 from FilterData import relocate_wanted_images
 from data_processing import load_labels
 
 
 def ManualLabelling(DATA_DIR):
-    ''''
-            Label class of image: (manually)
-                No car at lane at all           _#0
-                Car in front, close distance    _#1
-                Car at moderate distance        _#2
-                Car at distance                 _#3
-                Not Sure/Undefined              _#5
-    '''
-
+    """
+    A simplistic user interface to manually label images
+    Class of labeled image will be added to the file name:
+        Label class of image: (manually)
+                    No car at lane at all           _#0
+                    Car in front, close distance    _#1
+                    Car at moderate distance        _#2 won't be used
+                    Car at distance                 _#3 won't be used
+                    Not Sure/Undefined              _#5 won't be used
+    :param DATA_DIR: Images directory
+    :return: None
+    """
     with os.scandir(DATA_DIR) as scan:
         for img in scan:
             print(img.name)
@@ -30,8 +34,20 @@ def ManualLabelling(DATA_DIR):
         return
 
 
-def labels_Json_from_image_names(img_dir, Json_dir):
+def labels_Json_from_image_names(img_dir, Json_path):
+    """
+    After labels were assigned and file name modified accordingly (using ManualLabelling):
+        Move labeled images to class folder and create a Json file containing (image-name & class) pairs
+    :param img_dir:
+    :param Json_path: Json path to be written
+    :return: None
+    """
     labeled_dict = {}
+    img_dir0 = os.path.join(img_dir, '0/')
+    img_dir1 = os.path.join(img_dir, '1/')
+    if not os.path.isdir(img_dir0): os.mkdir(img_dir0)
+    if not os.path.isdir(img_dir1): os.mkdir(img_dir1)
+
     with os.scandir(img_dir) as scan:
         for img in scan:
             if '_#' in img.name:
@@ -39,10 +55,11 @@ def labels_Json_from_image_names(img_dir, Json_dir):
                 label = img.name.split('_#')[1][0]
                 labeled_dict[pre_name] = label
                 if label == '0':
-                    os.rename(os.path.join(img_dir, img.name), os.path.join(img_dir, '0/', pre_name))
+                    os.rename(img_dir0, os.path.join(img_dir0, pre_name))
                 if label == '1':
-                    os.rename(os.path.join(img_dir, img.name), os.path.join(img_dir, '1/', pre_name))
+                    os.rename(img_dir1, os.path.join(img_dir1, pre_name))
 
-    with open(Json_dir, 'w') as json_file:
+    with open(Json_path, 'w') as json_file:
         json.dump(labeled_dict, json_file)
     return
+
