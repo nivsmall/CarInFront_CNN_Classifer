@@ -11,7 +11,7 @@ Using self-labeled data
   - Numpy
   - matplotlib
 
-This Repository can be used to any image classification task, including self labeling stage
+This Repository can be used for any image classification task, including self labeling stage
 
 
 
