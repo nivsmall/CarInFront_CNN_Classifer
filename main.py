@@ -12,11 +12,12 @@ print('hello world')
 #FilterData.relocate_wanted_images(data,'bdd100k/bdd100k/images/100k/test', 'bdd100k/used_images/test')
 
 #Labelling.ManualLabelling(DATA_DIR="bdd100k/used_images/train/")
-#Labelling.labels_Json_from_image_names("bdd100k/used_images/val/", 'bdd100k/used_labels/val_labels_1.json')
+#Labelling.labels_Json_from_image_paths("bdd100k/used_images/train/", 'bdd100k/used_labels/train_aug_labels.json')
 
-#labels_dict = data_processing.load_labels('bdd100k/used_labels/val_labels.json')
-#examples_cnt = data_processing.write_tfrecord('bdd100k/tfrecords/val_test.tfrecords', labels_dict, 'bdd100k/used_images/val/')
-#print(examples_cnt)
+labels_dict = data_processing.load_labels('bdd100k/used_labels/train_aug_labels.json')
+examples_cnt = data_processing.write_tfrecord('bdd100k/tfrecords/train_aug.tfrecords', labels_dict,
+                                              'bdd100k/used_images/train/')
+print(examples_cnt)
 
-#input_pipeline.read_tfrecord('bdd100k/tfrecords/train_test.tfrecords', show=True, shuffle=True)
+input_pipeline.read_tfrecord('bdd100k/tfrecords/train_test.tfrecords', show=True)
 

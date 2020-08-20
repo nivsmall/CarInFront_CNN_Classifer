@@ -26,10 +26,10 @@ def train(transfer=False):
     if transfer:
         model.load_model("training_1/cp-0005.ckpt")
 
-    train_ds = input_pipeline.read_tfrecord('bdd100k/tfrecords/train_test.tfrecords', show=False, shuffle=True)
+    train_ds = input_pipeline.read_tfrecord('bdd100k/tfrecords/train_test.tfrecords', show=False)
     train_ds = train_ds.shuffle(buffer_size=2048).batch(BATCH_SIZE)
 
-    val_ds = input_pipeline.read_tfrecord('bdd100k/tfrecords/val_test.tfrecords', show=False, shuffle=True)
+    val_ds = input_pipeline.read_tfrecord('bdd100k/tfrecords/val_test.tfrecords', show=False)
     val_ds = val_ds.shuffle(buffer_size=128).batch(BATCH_SIZE)
 
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr, amsgrad=True),
@@ -62,4 +62,4 @@ def train(transfer=False):
     return
 
 
-train(False)
+#train(False)

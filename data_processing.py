@@ -48,7 +48,7 @@ def image_example(img_str, label):
     return tf.train.Example(features=tf.train.Features(feature=feature))
 
 
-def write_tfrecord(record_file, labels_dict, img_dir, In_Shape):
+def write_tfrecord(record_file, labels_dict, img_dir, In_Shape=(227, 227, 3)):
     """
     :param record_file: tf.record type file to serve as input for training model
     :param labels_dict: dictionary containing { KEY - image name, VALUE - class } pairs
@@ -59,8 +59,10 @@ def write_tfrecord(record_file, labels_dict, img_dir, In_Shape):
                 Normalizing the images will be done elsewhere; @ input_pipeline.py
     """
     # different labels are stored are stored in different folders:
-    img_dir0 = os.path.join(img_dir, '0/')
-    img_dir1 = os.path.join(img_dir, '1/')
+    img_dir0 = os.path.join(img_dir, '0')
+    img_dir1 = os.path.join(img_dir, '1')
+    list0 = os.listdir(img_dir0)
+    list1 = os.listdir(img_dir1)
     with tf.io.TFRecordWriter(record_file) as writer:
         i = 0
         for filename, label in labels_dict.items():
@@ -71,6 +73,7 @@ def write_tfrecord(record_file, labels_dict, img_dir, In_Shape):
                 img_dir = img_dir1
             else:
                 continue
+
 
             image = cv2.imread(os.path.join(img_dir, filename))
             # resize to model input size:
@@ -150,6 +153,8 @@ def add_random_noise(image, show=False):
         cv2.waitKey()
         cv2.destroyAllWindows()
     return aug_img
+
+
 
 
 

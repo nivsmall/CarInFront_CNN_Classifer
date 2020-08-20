@@ -4,6 +4,7 @@ import json
 import numpy as np
 from FilterData import relocate_wanted_images
 from data_processing import load_labels
+import random
 
 
 def ManualLabelling(DATA_DIR):
@@ -61,5 +62,21 @@ def labels_Json_from_image_names(img_dir, Json_path):
 
     with open(Json_path, 'w') as json_file:
         json.dump(labeled_dict, json_file)
+    return
+
+
+def labels_Json_from_image_paths(img_dir, Json_path):
+    labeled_dict = {}
+    img_dir0 = os.path.join(img_dir, '0/')
+    img_dir1 = os.path.join(img_dir, '1/')
+    for image in os.scandir(img_dir0): labeled_dict[image.name] = '0'
+    for image in os.scandir(img_dir1): labeled_dict[image.name] = '1'
+        # shuffle dictionary:
+    ld = {}
+    keys = list(labeled_dict.keys())
+    random.shuffle(keys)
+    for key in keys: ld[key] = labeled_dict[key]
+    with open(Json_path, 'w') as json_file:
+        json.dump(ld, json_file)
     return
 
