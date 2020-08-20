@@ -14,10 +14,10 @@ print('hello world')
 #Labelling.ManualLabelling(DATA_DIR="bdd100k/used_images/train/")
 #Labelling.labels_Json_from_image_paths("bdd100k/used_images/train/", 'bdd100k/used_labels/train_aug_labels.json')
 
-labels_dict = data_processing.load_labels('bdd100k/used_labels/train_aug_labels.json')
-examples_cnt = data_processing.write_tfrecord('bdd100k/tfrecords/train_aug.tfrecords', labels_dict,
+#labels_dict = data_processing.load_labels('bdd100k/used_labels/train_aug_labels.json')
+#examples_cnt = data_processing.write_tfrecord('bdd100k/tfrecords/train_aug.tfrecords', labels_dict,
                                               'bdd100k/used_images/train/')
-print(examples_cnt)
+#print(examples_cnt)
 
-input_pipeline.read_tfrecord('bdd100k/tfrecords/train_test.tfrecords', show=True)
+#input_pipeline.read_tfrecord('bdd100k/tfrecords/train_test.tfrecords', show=True)
 
