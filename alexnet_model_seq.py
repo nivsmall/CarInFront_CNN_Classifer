@@ -47,6 +47,6 @@ def create_alexnet(input_shape, num_classes, drop_out_rate=0):
     model.add(layers.Dense(256, activation='relu', kernel_initializer='he_normal'))
     model.add(layers.Dense(256, activation='relu', kernel_initializer='he_normal'))
 
-    model.add(layers.Dense(num_classes, activation='softmax'))
+    model.add(layers.Dense(num_classes, activation='sigmoid'))
     model.summary()
     return model
