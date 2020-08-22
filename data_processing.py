@@ -61,8 +61,6 @@ def write_tfrecord(record_file, labels_dict, img_dir, In_Shape=(227, 227, 3)):
     # different labels are stored are stored in different folders:
     img_dir0 = os.path.join(img_dir, '0')
     img_dir1 = os.path.join(img_dir, '1')
-    list0 = os.listdir(img_dir0)
-    list1 = os.listdir(img_dir1)
     with tf.io.TFRecordWriter(record_file) as writer:
         i = 0
         for filename, label in labels_dict.items():
@@ -86,34 +84,43 @@ def write_tfrecord(record_file, labels_dict, img_dir, In_Shape=(227, 227, 3)):
     return i
 
 
-def balance_data_via_augmentation(data_dir):
+def balance_data_via_augmentation(data_dir, balance_only):
     """
     Assuming there are more One labels than Zeros (but no more than half):
     Augment all Zero-labeled data
     Augment One-labeled data to achieve equal number of images for both classes
     Amount of data after running this function will be 2*0-class images
     :param data_dir: directory that image data is held, Image data should already be split into folders for each class
+    :param balance_only: Bool -- True - each image gets augmented once (blur or noise or flip)
+                                 False - each image augmented thrice (blur and noise and flip, separately)
+                                Either way this data should be balanced at end of run (4 or 8 times zero labeled)
     :return: None
     """
     img_dir0 = os.path.join(data_dir, '0')
     img_dir1 = os.path.join(data_dir, '1')
     list0 = os.listdir(img_dir0)
     list1 = os.listdir(img_dir1)
-    data_imbalance = len(list0)*2-len(list1)
-    to_augment = random.choices(list1, k=data_imbalance)
+    if balance_only:
+        data_imbalance = len(list0)*2-len(list1)
+        to_augment = random.choices(list1, k=data_imbalance)
+    else:
+        data_imbalance = len(list0)-len(list1)
+        data_imbalance = len(list0)-data_imbalance/3
+        to_augment = random.choices(list1, k=data_imbalance)
     random.shuffle(to_augment)
     random.shuffle(list0)
-    augment_listed_images(img_dir1, to_augment)
-    augment_listed_images(img_dir0, list0)
+    augment_listed_images(img_dir1, to_augment, balance_only)
+    augment_listed_images(img_dir0, list0, balance_only)
     return
 
 
-def augment_listed_images(img_dir, img_lst):
+def augment_listed_images(img_dir, img_lst, balance_only):
     """
     Augments images and writes to same directory, types of augmentation:
-    1) flip horizontally 2) add random noise 3) add gaussian blur (randomly does one for each image)
+    1) flip horizontally 2) add random noise 3) add gaussian blur
     :param img_dir: directory of images
     :param img_lst: list type containing all images to augment - all images should be in img_dir
+    :param balance_only: Bool
     :return: None
     """
     for i in range(len(img_lst)):
@@ -121,7 +128,18 @@ def augment_listed_images(img_dir, img_lst):
         image_path = os.path.join(img_dir, img_lst.pop())
         image = cv2.imread(image_path)
 
-        if i % 3 == 0:  # add noise
+        if not balance_only:
+                # add noise:
+            aug_img = add_random_noise(image)
+            cv2.imwrite(image_path.split('.jpg')[0] + '_n_aug.jpg', aug_img)
+                # flip horizontally:
+            aug_img = np.fliplr(image)
+            cv2.imwrite(image_path.split('.jpg')[0] + '_n_aug.jpg', aug_img)
+                # add blur:
+            aug_img = blur_image(image)
+            cv2.imwrite(image_path.split('.jpg')[0] + '_b_aug.jpg', aug_img)
+
+        elif i % 3 == 0:  # add noise
             aug_img = add_random_noise(image)
             cv2.imwrite(image_path.split('.jpg')[0] + '_n_aug.jpg', aug_img)
 
@@ -129,10 +147,8 @@ def augment_listed_images(img_dir, img_lst):
             aug_img = np.fliplr(image)
             cv2.imwrite(image_path.split('.jpg')[0] + '_f_aug.jpg', aug_img)
 
-        else:  # add blur
-            kernel = random.randint(5, 50)
-            if kernel % 2 == 0: kernel += 1
-            aug_img = cv2.GaussianBlur(image, ksize=(kernel, kernel), sigmaX=0)
+        elif i % 3 == 2:  # add blur
+            aug_img = blur_image(image)
             cv2.imwrite(image_path.split('.jpg')[0] + '_b_aug.jpg', aug_img)
     return
 
@@ -152,6 +168,17 @@ def add_random_noise(image, show=False):
         cv2.imshow('Augmented Image:', aug_img)
         cv2.waitKey()
         cv2.destroyAllWindows()
+    return aug_img
+
+def blur_image(image):
+    """
+    Blurs image, Gaussian Blur
+    :param image: array - Image Matrix
+    :return: Augmented Image - array - Image Matrix
+    """
+    kernel = random.randint(5, 50)
+    if kernel % 2 == 0: kernel += 1
+    aug_img = cv2.GaussianBlur(image, ksize=(kernel, kernel), sigmaX=0)
     return aug_img
 
 
