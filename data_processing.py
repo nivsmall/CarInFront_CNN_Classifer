@@ -105,7 +105,7 @@ def balance_data_via_augmentation(data_dir, balance_only):
         to_augment = random.choices(list1, k=data_imbalance)
     else:
         data_imbalance = len(list0)-len(list1)
-        data_imbalance = len(list0)-data_imbalance/3
+        data_imbalance = len(list0)-int(data_imbalance/3)
         to_augment = random.choices(list1, k=data_imbalance)
     random.shuffle(to_augment)
     random.shuffle(list0)
@@ -134,7 +134,7 @@ def augment_listed_images(img_dir, img_lst, balance_only):
             cv2.imwrite(image_path.split('.jpg')[0] + '_n_aug.jpg', aug_img)
                 # flip horizontally:
             aug_img = np.fliplr(image)
-            cv2.imwrite(image_path.split('.jpg')[0] + '_n_aug.jpg', aug_img)
+            cv2.imwrite(image_path.split('.jpg')[0] + '_f_aug.jpg', aug_img)
                 # add blur:
             aug_img = blur_image(image)
             cv2.imwrite(image_path.split('.jpg')[0] + '_b_aug.jpg', aug_img)
