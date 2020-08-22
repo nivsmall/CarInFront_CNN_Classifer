@@ -23,8 +23,11 @@ Using a slimmer version of (an already slim) Alexnet
 
 
 
-This Repository can be used for any image classification task, including self labeling stage
+# Own It!
 
+Use your own data, self label it as you wish.
 
+The repository can be used for any Image Classification task
 
+TODO: for non binary classification: change last layer's activation from sigmoid to softmax, change labeling format to one-hot encoding
 
