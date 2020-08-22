@@ -81,10 +81,11 @@ def filterData(weatherAtt2keep, sceneAtt2keep, timeAtt2keep, labelsJson):
 
 
 def relocate_wanted_images(data, orig_im_dir, new_im_dir):
-    ''''
+    '''
     Relocating the wanted data (after filtering) to different directory
     Inputs: data -- dictionary { KEY - image name, VALUE - image data }
     '''
+    if not os.path.isdir(new_im_dir): os.mkdir(new_im_dir)
     for img_name in data:
         os.rename(os.path.join(orig_im_dir,img_name), os.path.join(new_im_dir,img_name))
     return
