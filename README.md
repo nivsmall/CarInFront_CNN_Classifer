@@ -13,9 +13,9 @@ Using self-labeled data
 
 
 # Getting the data:
-Free dataset available for download:
-  Berkely Deep Drive, - Repository -- https://github.com/ucbdrive/bdd100k
-                      - Website -- https://bdd-data.berkeley.edu/
+Free dataset available for download, Berkely Deep Drive:
+    Repository -- https://github.com/ucbdrive/bdd100k
+    Website -- https://bdd-data.berkeley.edu/
 
 # Model Architecture:
 Using a slimmer version of (an already slim) Alexnet
