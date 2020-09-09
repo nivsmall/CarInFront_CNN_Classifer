@@ -99,10 +99,10 @@ def preview_filtered_data(data, im_dir):
     '''
     for img_name in data:
         img = cv2.imread(os.path.join(im_dir, img_name))
-        cv2.imshow('Example Image', img)
-        stop = int(chr(cv2.waitKey()))
+        cv2.imshow('Example Image; Press Enter to see another image', img)
+        stop = str(cv2.waitKey())
         cv2.destroyAllWindows()
-        if stop != 0:
+        if stop != str(13):
             break
     return
 
