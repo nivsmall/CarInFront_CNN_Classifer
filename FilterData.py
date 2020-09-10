@@ -87,7 +87,10 @@ def relocate_wanted_images(data, orig_im_dir, new_im_dir):
     '''
     if not os.path.isdir(new_im_dir): os.mkdir(new_im_dir)
     for img_name in data:
-        os.rename(os.path.join(orig_im_dir,img_name), os.path.join(new_im_dir,img_name))
+        try:
+            os.rename(os.path.join(orig_im_dir,img_name), os.path.join(new_im_dir,img_name))
+        except FileNotFoundError:
+            print('{} file not found'.format(img_name))
     return
 
 

@@ -25,6 +25,8 @@ def ManualLabelling(DATA_DIR):
             print(img.name)
             if '_#' in img.name:
                 continue
+            elif len(img.name) < 10:
+                continue
             mat = cv2.imread(os.path.join(DATA_DIR, img.name))
             cv2.imshow('Assign Label to Image: (9 to exit)', mat)
             label = chr(cv2.waitKey())
