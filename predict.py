@@ -8,29 +8,26 @@ INPUT_SHAPE = (227, 227, 3)
 NUM_CLASSES = 2
 
 
-def predict(image_dir, saved_model_path):
+def predict(image_dir, saved_model_path, show=False):
     model = tf.keras.models.load_model(saved_model_path)
-    ls = os.scandir(img_dir)
+    ls = os.scandir(image_dir)
     y_lst = []
     for img in ls:
         x = cv2.imread(os.path.join(image_dir, img.name))
-        #cv2.imshow('Image to Classify:', x)
-        #cv2.waitKey()
-        #cv2.destroyAllWindows()
+        x1 = x
         x = x/255.
         x = tf.image.resize_with_pad(x, target_height=INPUT_SHAPE[0], target_width=INPUT_SHAPE[1])
         if x.numpy().shape != INPUT_SHAPE:
-            raise ValueError('The input image x doesnt match the model input')
+            raise ValueError('The input image shape x doesnt match the model input shape')
         x = tf.expand_dims(x, 0)
         y = model(x, training=False)
-
-        y_lst.append(y.numpy()[0, 0])
+        if show:
+            cv2.imshow('Model Classified this as: {}'.format(y), x1)
+            cv2.waitKey()
+            cv2.destroyAllWindows()
+        y_lst.append((img.name, y.numpy()[0, 0]))
 
     return y_lst
 
-img_dir = 'bdd100k/used_images/test/'
-CarInFront = predict(img_dir, 'saved_models/my_model')
-print(CarInFront)
-
-#CarInFront = predict('bdd100k/used_images/test/cb86b1d9-7735472c.jpg', 'saved_models/my_model')
-#print(CarInFront.numpy())
+#CarInFront = predict('bdd100k/used_images/test/', 'saved_models/my_model3', True)
+#print(CarInFront)
