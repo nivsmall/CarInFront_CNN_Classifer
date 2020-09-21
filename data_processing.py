@@ -74,7 +74,6 @@ def write_tfrecord(record_file, labels_dict, img_dir, single_img_folder, In_Shap
             else:
                 continue
 
-
             image = cv2.imread(os.path.join(img_dir, filename))
             # resize to model input size:
             image = tf.cast(tf.image.resize_with_pad(image, target_height=In_Shape[0], target_width=In_Shape[1]), tf.uint8)
@@ -171,6 +170,7 @@ def add_random_noise(image, show=False):
         cv2.waitKey()
         cv2.destroyAllWindows()
     return aug_img
+
 
 def blur_image(image):
     """
