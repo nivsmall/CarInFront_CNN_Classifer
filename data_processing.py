@@ -63,6 +63,10 @@ def write_tfrecord(record_file, labels_dict, img_dir, single_img_folder, In_Shap
     else:                   # different labels are stored are stored in different sub folders:
         img_dir0 = os.path.join(img_dir, '0')
         img_dir1 = os.path.join(img_dir, '1')
+
+    record_dir = os.path.split(record_file)[0]
+    if not os.path.isdir(record_dir): os.mkdir(record_dir)
+
     with tf.io.TFRecordWriter(record_file) as writer:
         i = 0
         for filename, label in labels_dict.items():
