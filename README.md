@@ -29,5 +29,10 @@ Use your own data, self label it as you wish.
 
 The repository can be used for any Image Classification task
 
+# Skip the manual labeling:
+Labeling has already being done, use Json file from used_labels folder
+Skip to - write tf.record - line of code in main.py
+
+
 TODO: for non binary classification: change last layer's activation from sigmoid to softmax, change labeling format to one-hot encoding
 
