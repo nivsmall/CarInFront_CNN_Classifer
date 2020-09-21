@@ -37,12 +37,12 @@ def ManualLabelling(DATA_DIR):
         return
 
 
-def labels_Json_from_image_names(img_dir, Json_path):
+def move_images_to_class_folders(img_dir, Json_path=None):
     """
     After labels were assigned and file name modified accordingly (using ManualLabelling):
         Move labeled images to class folder and create a Json file containing (image-name & class) pairs
     :param img_dir:
-    :param Json_path: Json path to be written
+    :param Json_path: Json path to be written, None will move images without writing Json file
     :return: None
     """
     labeled_dict = {}
@@ -58,12 +58,15 @@ def labels_Json_from_image_names(img_dir, Json_path):
                 label = img.name.split('_#')[1][0]
                 labeled_dict[pre_name] = label
                 if label == '0':
-                    os.rename(img_dir0, os.path.join(img_dir0, pre_name))
+                    os.rename(os.path.join(img_dir, img.name), os.path.join(img_dir0, pre_name))
                 if label == '1':
-                    os.rename(img_dir1, os.path.join(img_dir1, pre_name))
+                    os.rename(os.path.join(img_dir, img.name), os.path.join(img_dir1, pre_name))
 
-    with open(Json_path, 'w') as json_file:
-        json.dump(labeled_dict, json_file)
+    try:
+        with open(Json_path, 'w') as json_file:
+            json.dump(labeled_dict, json_file)
+    except TypeError:
+        print('json is NOT written')
     return
 
 
