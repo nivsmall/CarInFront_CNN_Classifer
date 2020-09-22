@@ -31,6 +31,7 @@ The repository can be used for any Image Classification task
 
 # Skip the manual labeling:
 Labeling has already being done, use Json file from used_labels folder
+
 Skip to - write tf.record - line of code in main.py
 
 
